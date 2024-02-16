@@ -1,0 +1,65 @@
+﻿@model IEnumerable<MusicServiceDomain.Model.Song>
+
+@{
+    ViewData["Title"] = "Пісні за жанром";
+}
+
+<h1>Пісні за жанром @ViewBag.GenreName </h1>
+
+<p>
+    @Html.ActionLink("Додати нову пісню", "Create", new {genreId = ViewBag.GenreId})
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Title)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ArtistId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.GenreId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LyricsId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Duration)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Album)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Title)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ArtistId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.GenreId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.LyricsId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Duration)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Album.Title)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
