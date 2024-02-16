@@ -18,13 +18,13 @@ namespace MusicServiceInfrastructure.Controllers
         public JsonResult JsonData()
         {
             var genres = _context.Genres.ToList();
-            List<object> catSong = new List<object>();
-            catSong.Add(new[] { "Жанр", "Кількість пісень" });
+            List<object> genSong = new List<object>();
+            genSong.Add(new[] { "Жанр", "Кількість пісень" });
             foreach (var c in genres)
             {
-                catSong.Add(new object[] { c.Name, c.SongsGenres.Count() });
+                genSong.Add(new object[] { c.Name, c.SongsGenres.Count() });
             }
-            return new JsonResult(catSong);
+            return new JsonResult(genSong);
         }
     }
 }
