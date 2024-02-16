@@ -8,9 +8,11 @@ using Microsoft.EntityFrameworkCore;
 using MusicServiceDomain.Model;
 using MusicServiceInfrastructure;
 using ClosedXML.Excel;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MusicServiceInfrastructure.Controllers
 {
+    [Authorize(Roles="admin, user")]
     public class GenresController : Controller
     {
         private readonly DbsongsContext _context;
