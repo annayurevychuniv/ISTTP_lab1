@@ -1,4 +1,4 @@
-﻿@model MusicServiceDomain.Model.Genre
+﻿@model MusicServiceDomain.Model.Artist
 
 @{
     ViewData["Title"] = "Створити";
@@ -7,7 +7,7 @@
 <br />
 <h1>Створити</h1>
 
-<h4>Жанр</h4>
+<h4>Виконавець</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
@@ -19,9 +19,14 @@
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
-                <span asp-validation-for="Description" class="text-danger"></span>
+                <label asp-for="BirthDate" class="control-label"></label>
+                <input asp-for="BirthDate" class="form-control" />
+                <span asp-validation-for="BirthDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Country" class="control-label"></label>
+                <input asp-for="Country" class="form-control" />
+                <span asp-validation-for="Country" class="text-danger"></span>
             </div>
             <br />
             <div class="form-group">
@@ -32,6 +37,3 @@
     </div>
 </div>
 
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}

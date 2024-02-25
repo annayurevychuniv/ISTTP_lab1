@@ -1,4 +1,4 @@
-﻿@model MusicServiceDomain.Model.Genre
+﻿@model MusicServiceDomain.Model.Lyric
 
 @{
     ViewData["Title"] = "Докладніше";
@@ -7,20 +7,20 @@
 <h1>Докладніше</h1>
 
 <div>
-    <h4>Жанр</h4>
+    <h4>Текст</h4>
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
+            @Html.DisplayNameFor(model => model.Text)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Name)
+            @Html.DisplayFor(model => model.Text)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Description)
+            @Html.DisplayNameFor(model => model.Song)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Description)
+            @Html.DisplayFor(model => model.Song.Title)
         </dd>
     </dl>
 </div>

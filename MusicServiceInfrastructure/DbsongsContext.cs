@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using MusicServiceDomain.Model;
 using Microsoft.EntityFrameworkCore;
 
-namespace MusicServiceInfrastructure;
+namespace MusicServiceDomain.Model;
 
 public partial class DbsongsContext : DbContext
 {
@@ -15,8 +14,6 @@ public partial class DbsongsContext : DbContext
         : base(options)
     {
     }
-
-    public virtual DbSet<Album> Albums { get; set; }
 
     public virtual DbSet<Artist> Artists { get; set; }
 
@@ -40,13 +37,6 @@ public partial class DbsongsContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Album>(entity =>
-        {
-            entity.Property(e => e.Title)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-        });
-
         modelBuilder.Entity<Artist>(entity =>
         {
             entity.Property(e => e.Country)
@@ -71,11 +61,10 @@ public partial class DbsongsContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK_Likes_1");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
-            entity.Property(e => e.SongId)
-                .ValueGeneratedOnAdd()
-                .HasColumnName("SongID");
-            entity.Property(e => e.UserId).HasColumnName("UserID");
+            entity.Property(e => e.SongId).HasColumnName("SongID");
+            entity.Property(e => e.UserId)
+                .HasMaxLength(450)
+                .HasColumnName("UserID");
 
             entity.HasOne(d => d.Song).WithMany(p => p.Likes)
                 .HasForeignKey(d => d.SongId)
@@ -92,39 +81,28 @@ public partial class DbsongsContext : DbContext
         {
             entity.HasIndex(e => e.SongId, "UK_SongID").IsUnique();
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
-            entity.Property(e => e.SongId)
-                .ValueGeneratedOnAdd()
-                .HasColumnName("SongID");
+            entity.Property(e => e.SongId).HasColumnName("SongID");
             entity.Property(e => e.Text)
                 .HasMaxLength(4000)
                 .IsUnicode(false);
 
             entity.HasOne(d => d.Song).WithOne(p => p.Lyric)
                 .HasForeignKey<Lyric>(d => d.SongId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_LYRICS_SONGS");
         });
 
         modelBuilder.Entity<Song>(entity =>
         {
-            entity.Property(e => e.AlbumId).HasColumnName("AlbumID");
             entity.Property(e => e.ArtistId).HasColumnName("ArtistID");
             entity.Property(e => e.GenreId).HasColumnName("GenreID");
             entity.Property(e => e.LyricsId).HasColumnName("LyricsID");
             entity.Property(e => e.Title)
                 .HasMaxLength(50)
                 .IsUnicode(false);
-
-            entity.HasOne(d => d.Album).WithMany(p => p.Songs)
-                .HasForeignKey(d => d.AlbumId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_SONGS_ALBUMS");
         });
 
         modelBuilder.Entity<SongsArtist>(entity =>
         {
-            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.ArtistId).HasColumnName("ArtistID");
             entity.Property(e => e.SongId).HasColumnName("SongID");
 
@@ -143,7 +121,6 @@ public partial class DbsongsContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK_SongsGenres_1");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.GenreId).HasColumnName("GenreID");
             entity.Property(e => e.SongId).HasColumnName("SongID");
 

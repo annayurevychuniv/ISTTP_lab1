@@ -5,17 +5,13 @@ namespace MusicServiceInfrastructure.ViewModel
     public class RegisterViewModel
     {
         [Required]
-        [Display(Name = "Email")]
+        [Display(Name = "Пошта")]
         [DataType(DataType.EmailAddress)]
         public string Email { get; set; }
 
         [Required]
-        [Display(Name = "Рік народження")]
-        public int Year { get; set; }
-
-        [Required]
         [Display(Name = "Пароль")]
-        [DataType(DataType.EmailAddress)]
+        [DataType(DataType.Password)]
         public string Password { get; set; }
 
         [Required]

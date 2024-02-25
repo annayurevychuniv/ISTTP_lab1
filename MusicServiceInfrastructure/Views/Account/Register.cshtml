@@ -1,28 +1,25 @@
 ﻿@model MusicServiceInfrastructure.ViewModel.RegisterViewModel
-<h2>Реєстрація нового користувача</h2>
+<br/>
+<h3>Реєстрація нового користувача</h3>
 <form method="post" asp-controller="Account" asp-action="Register">
     <div asp-validation-summary="ModelOnly"></div>
-    <div>
-        <label asp-for="Email"></label><br />
-        <input asp-for="Email" />
-        <span asp-validation-for="Email"></span>
+    <div class="form-group">
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control">
+        <span asp-validation-for="Email" class="text-danger"></span>
     </div>
-    <div>
-        <label asp-for="Year"></label><br />
-        <input asp-for="Year" />
-        <span asp-validation-for="Year"></span>
+    <div class="form-group">
+        <label asp-for="Password" class="form-label"></label>
+        <input asp-for="Password" class="form-control">
+        <span asp-validation-for="Password" class="text-danger"></span>
     </div>
-    <div>
-        <label asp-for="Password"></label><br />
-        <input asp-for="Password" />
-        <span asp-validation-for="Password"></span>
+    <div class="form-group">
+        <label asp-for="PasswordConfirm" class="form-label"></label>
+        <input asp-for="PasswordConfirm" class="form-control">
+        <span asp-validation-for="PasswordConfirm" class="text-danger"></span>
     </div>
+    <br/>
     <div>
-        <label asp-for="PasswordConfirm"></label><br />
-        <input asp-for="PasswordConfirm" />
-        <span asp-validation-for="PasswordConfirm"></span>
-    </div>
-    <div>
-        <input type="submit" value="Реєстрація" />
+        <button type="submit" class="btn btn-dark">Реєстрація</button>
     </div>
 </form>

@@ -7,67 +7,68 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MusicServiceDomain.Model;
 using MusicServiceInfrastructure;
-using ClosedXML.Excel;
-using Microsoft.AspNetCore.Authorization;
 
 namespace MusicServiceInfrastructure.Controllers
 {
-    public class GenresController : Controller
+    public class LyricsController : Controller
     {
         private readonly DbsongsContext _context;
 
-        public GenresController(DbsongsContext context)
+        public LyricsController(DbsongsContext context)
         {
             _context = context;
         }
 
-        // GET: Genres
+        // GET: Lyrics
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Genres.ToListAsync());
+            var dbsongsContext = _context.Lyrics.Include(l => l.Song);
+            return View(await dbsongsContext.ToListAsync());
+
         }
 
-        // GET: Genres/Details/5
+        // GET: Lyrics/Details/5
         public async Task<IActionResult> Details(int? id)
-        { 
+        {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var genre = await _context.Genres
+            var lyric = await _context.Lyrics
+                .Include(l => l.Song)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (genre == null)
+            if (lyric == null)
             {
                 return NotFound();
             }
 
-            return View(genre);
+            return View(lyric);
         }
 
-        // GET: Genres/Create
+        // GET: Lyrics/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Genres/Create
+        // POST: Lyrics/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name,Description,Id")] Genre genre)
+        public async Task<IActionResult> Create([Bind("Text,SongId,Id")] Lyric lyric)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(genre);
+                _context.Add(lyric);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(genre);
+            return View(lyric);
         }
 
-        // GET: Genres/Edit/5
+        // GET: Lyrics/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -75,22 +76,23 @@ namespace MusicServiceInfrastructure.Controllers
                 return NotFound();
             }
 
-            var genre = await _context.Genres.FindAsync(id);
-            if (genre == null)
+            var lyric = await _context.Lyrics.FindAsync(id);
+            if (lyric == null)
             {
                 return NotFound();
             }
-            return View(genre);
+            ViewData["SongId"] = new SelectList(_context.Songs, "Id", "Title", lyric.SongId);
+            return View(lyric);
         }
 
-        // POST: Genres/Edit/5
+        // POST: Lyrics/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Name,Description,Id")] Genre genre)
+        public async Task<IActionResult> Edit(int id, [Bind("Text,SongId,Id")] Lyric lyric)
         {
-            if (id != genre.Id)
+            if (id != lyric.Id)
             {
                 return NotFound();
             }
@@ -99,12 +101,12 @@ namespace MusicServiceInfrastructure.Controllers
             {
                 try
                 {
-                    _context.Update(genre);
+                    _context.Update(lyric);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!GenreExists(genre.Id))
+                    if (!LyricExists(lyric.Id))
                     {
                         return NotFound();
                     }
@@ -115,10 +117,11 @@ namespace MusicServiceInfrastructure.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(genre);
+            ViewData["SongId"] = new SelectList(_context.Songs, "Id", "Title", lyric.SongId);
+            return View(lyric);
         }
 
-        // GET: Genres/Delete/5
+        // GET: Lyrics/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -126,47 +129,35 @@ namespace MusicServiceInfrastructure.Controllers
                 return NotFound();
             }
 
-            var genre = await _context.Genres
+            var lyric = await _context.Lyrics
+                .Include(l => l.Song)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (genre == null)
+            if (lyric == null)
             {
                 return NotFound();
             }
 
-            return View(genre);
+            return View(lyric);
         }
 
-        // POST: Genres/Delete/5
+        // POST: Lyrics/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var genre = await _context.Genres.FindAsync(id);
-            if (genre == null)
+            var lyric = await _context.Lyrics.FindAsync(id);
+            if (lyric != null)
             {
-                return NotFound();
+                _context.Lyrics.Remove(lyric);
             }
 
-            // Проверяем, есть ли у жанра песни
-            var songsInGenre = await _context.Songs.Where(s => s.GenreId == id).ToListAsync();
-            if (songsInGenre.Any())
-            {
-                ModelState.AddModelError("", "Не можна видалити жанр, якщо є пісні такого жанру");
-                return View("Delete", genre);
-            }
-
-            // Если у жанра нет песен, удаляем его
-            _context.Genres.Remove(genre);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-
-        private bool GenreExists(int id)
+        private bool LyricExists(int id)
         {
-            return _context.Genres.Any(e => e.Id == id);
+            return _context.Lyrics.Any(e => e.Id == id);
         }
-
-
     }
 }

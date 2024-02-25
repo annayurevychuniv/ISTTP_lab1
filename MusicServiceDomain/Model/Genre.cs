@@ -10,7 +10,7 @@ public partial class Genre : Entity
     [Display(Name = "Жанр")]
     public string Name { get; set; } = null!;
 
-    [Display(Name = "Інформація про жанр")]
+    [Display(Name = "Опис")]
     public string? Description { get; set; }
 
     public virtual ICollection<SongsGenre> SongsGenres { get; set; } = new List<SongsGenre>();

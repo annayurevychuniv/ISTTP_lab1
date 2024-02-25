@@ -1,13 +1,13 @@
-﻿@model IEnumerable<MusicServiceDomain.Model.Song>
+﻿@model IEnumerable<MusicServiceInfrastructure.ViewModel.SongsViewModel>
 
 @{
-    ViewData["Title"] = "Пісні за жанром";
+    ViewData["Title"] = "Пісні";
 }
 
-<h1>Пісні за жанром @ViewBag.GenreName </h1>
-
+<br />
+<h1>Пісні</h1>
 <p>
-    @Html.ActionLink("Додати нову пісню", "Create", new {genreId = ViewBag.GenreId})
+    <a asp-action="Create" class="btn btn-dark" role="button">Створити нову пісню</a>
 </p>
 <table class="table">
     <thead>
@@ -16,19 +16,7 @@
                 @Html.DisplayNameFor(model => model.Title)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ArtistId)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.GenreId)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.LyricsId)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Duration)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Album)
+                @Html.DisplayNameFor(model => model.ArtistName)
             </th>
             <th></th>
         </tr>
@@ -40,26 +28,33 @@
                 @Html.DisplayFor(modelItem => item.Title)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.ArtistId)
+                @Html.DisplayFor(modelItem => item.ArtistName)
             </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.GenreId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.LyricsId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Duration)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Album.Title)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
+                <td>
+                    <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Details", new { id = item.Id })'">Докладніше</button>
+                    <button type="button" class="btn btn-outline-dark" onclick="location.href='@Url.Action("Edit", new { id = item.Id })'">Редагувати</button>
+                    <button type="button" class="btn btn-secondary" onclick="location.href='@Url.Action("Delete", new { id = item.Id })'">Видалити</button>
+                </td>
         </tr>
 }
     </tbody>
 </table>
+<hr />
+
+@* <br />
+<div>
+    <h3>Завантажити пісні з Excel-файлу</h3>
+    @using (Html.BeginForm("Import", "Songs", FormMethod.Post, new { enctype = "multipart/form-data", id = "frm-excel" }))
+    {
+        <div class="form-group">
+            <input class="form-control" type="file" id="fileExcel" name="fileExcel">
+        </div>
+    }
+</div>
+<br />
+<hr />
+<br />
+<div>
+    <h3>Завантажити пісні в Excel-файл</h3>
+    <a asp-action="Index" class="btn btn-dark">Завантажити</a>
+</div> *@

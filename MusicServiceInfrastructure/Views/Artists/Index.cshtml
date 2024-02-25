@@ -1,17 +1,15 @@
-﻿@model IEnumerable<MusicServiceDomain.Model.Genre>
+﻿@model IEnumerable<MusicServiceDomain.Model.Artist>
 
 @{
-    ViewData["Title"] = "Жанри";
+    ViewData["Title"] = "Виконавці";
 }
 
 <br/>
-<h1>Жанри</h1>
+<h1>Виконавці</h1>
 
 <p>
-    <a asp-action="Create" class="btn btn-dark" role="button">Створити новий жанр</a>
+    <a asp-action="Create" class="btn btn-dark" role="button">Створити нового виконавця</a>
 </p>
-
-
 <table class="table">
     <thead>
         <tr>
@@ -19,7 +17,7 @@
                 @Html.DisplayNameFor(model => model.Name)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Description)
+                @Html.DisplayNameFor(model => model.Country)
             </th>
             <th></th>
         </tr>
@@ -31,9 +29,10 @@
                 @Html.DisplayFor(modelItem => item.Name)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Description)
+                @Html.DisplayFor(modelItem => item.Country)
             </td>
             <td>
+                <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Details", new { id = item.Id })'">Докладніше</button>
                 <button type="button" class="btn btn-outline-dark" onclick="location.href='@Url.Action("Edit", new { id = item.Id })'">Редагувати</button>
                 <button type="button" class="btn btn-secondary" onclick="location.href='@Url.Action("Delete", new { id = item.Id })'">Видалити</button>
             </td>
@@ -41,4 +40,3 @@
 }
     </tbody>
 </table>
-

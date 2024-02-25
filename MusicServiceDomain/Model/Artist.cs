@@ -6,12 +6,11 @@ namespace MusicServiceDomain.Model;
 
 public partial class Artist : Entity
 {
-
     [Required(ErrorMessage = "Поле не повинно бути порожнім")]
     [Display(Name = "Ім'я")]
     public string Name { get; set; } = null!;
 
-    [Display(Name = "Рік народження")]
+    [Display(Name = "Дата народження")]
     public DateOnly? BirthDate { get; set; }
 
     [Display(Name = "Країна")]
