@@ -213,25 +213,89 @@ namespace MusicServiceInfrastructure.Controllers
                                     try
                                     {
                                         Song song = new Song();
-                                        song.Title = row.Cell(1).Value.ToString();
+                                        Artist newArtist;
+                                        Genre newGenre;
+                                        Lyric newLyrics;
 
+                                        string songTitle = row.Cell(1).Value.ToString();
                                         string artistName = row.Cell(2).Value.ToString();
-                                        string albumName = row.Cell(3).Value.ToString();
+                                        string genreName = row.Cell(3).Value.ToString();
+                                        string lyricsText = row.Cell(4).Value.ToString();
+                                        song.Duration = (int)row.Cell(5).Value;
 
+                                        var existingTitle = await _context.Songs.FirstOrDefaultAsync(a => a.Title == songTitle);
                                         var existingArtist = await _context.Artists.FirstOrDefaultAsync(a => a.Name == artistName);
-                                        if (existingArtist == null)
+
+                                        if (existingArtist != null && existingTitle != null)
                                         {
-                                            Artist newArtist = new Artist { Name = artistName };
-                                            _context.Artists.Add(newArtist);
-                                            await _context.SaveChangesAsync();
-                                            song.ArtistId = newArtist.Id;
                                         }
                                         else
                                         {
-                                            song.ArtistId = existingArtist.Id;
-                                        }
+                                            song.Title = songTitle;
+                                            if (existingArtist == null)
+                                            {
+                                                newArtist = new Artist { Name = artistName };
+                                                _context.Artists.Add(newArtist);
+                                                await _context.SaveChangesAsync();
+                                                song.ArtistId = newArtist.Id;
+                                            }
+                                            else
+                                            {
+                                                song.ArtistId = existingArtist.Id;
+                                            }
 
-                                        _context.Songs.Add(song);
+                                            var existingGenre = await _context.Genres.FirstOrDefaultAsync(a => a.Name == genreName);
+                                            if (existingGenre == null)
+                                            {
+                                                newGenre = new Genre { Name = genreName };
+                                                _context.Genres.Add(newGenre);
+                                                await _context.SaveChangesAsync();
+                                                song.GenreId = newGenre.Id;
+                                            }
+                                            else
+                                            {
+                                                song.GenreId = existingGenre.Id;
+                                            }
+
+                                            _context.Songs.Add(song);
+                                            await _context.SaveChangesAsync();
+
+                                            var existingLyrics = await _context.Lyrics.FirstOrDefaultAsync(a => a.Text == lyricsText);
+
+                                            if (existingLyrics == null)
+                                            {
+                                                newLyrics = new Lyric { Text = lyricsText, SongId = song.Id };
+                                                _context.Lyrics.Add(newLyrics);
+                                                await _context.SaveChangesAsync();
+                                                song.LyricsId = newLyrics.Id;
+                                            }
+                                            else
+                                            {
+                                                if (existingLyrics.SongId == null)
+                                                {
+                                                    existingLyrics.SongId = song.Id;
+                                                    await _context.SaveChangesAsync();
+                                                    song.LyricsId = existingLyrics.Id;
+                                                }
+                                                else
+                                                {
+                                                    newLyrics = new Lyric { Text = lyricsText, SongId = song.Id };
+                                                    _context.Lyrics.Add(newLyrics);
+                                                    await _context.SaveChangesAsync();
+                                                    song.LyricsId = newLyrics.Id;
+                                                }
+                                            }
+
+                                            SongsArtist sa = new SongsArtist();
+                                            sa.SongId = song.Id;
+                                            sa.ArtistId = song.ArtistId;
+                                            _context.SongsArtists.Add(sa);
+
+                                            SongsGenre sg = new SongsGenre();
+                                            sg.SongId = song.Id;
+                                            sg.GenreId = song.GenreId;
+                                            _context.SongsGenres.Add(sg);
+                                        }
                                     }
                                     catch (Exception e)
                                     {
@@ -251,7 +315,7 @@ namespace MusicServiceInfrastructure.Controllers
 
 
 
-        public ActionResult Export()
+        public async Task<ActionResult> Export()
         {
             using (XLWorkbook workbook = new XLWorkbook())
             {
@@ -260,18 +324,27 @@ namespace MusicServiceInfrastructure.Controllers
 
                 worksheet.Cell("A1").Value = "Назва";
                 worksheet.Cell("B1").Value = "Виконавець";
-                worksheet.Cell("D1").Value = "Жанр";
-                worksheet.Cell("E1").Value = "Текст";
-                worksheet.Cell("F1").Value = "Тривалість";
+                worksheet.Cell("C1").Value = "Жанр";
+                worksheet.Cell("D1").Value = "Текст";
+                worksheet.Cell("E1").Value = "Тривалість";
                 worksheet.Row(1).Style.Font.Bold = true;
 
                 for (int i = 0; i < songs.Count; i++)
                 {
                     worksheet.Cell(i + 2, 1).Value = songs[i].Title;
-                    worksheet.Cell(i + 2, 2).Value = songs[i].SongsArtists.FirstOrDefault()?.Artist.Name;
-                    worksheet.Cell(i + 2, 4).Value = songs[i].GenreId;
-                    worksheet.Cell(i + 2, 5).Value = songs[i].LyricsId;
-                    worksheet.Cell(i + 2, 6).Value = songs[i].Duration;
+                    worksheet.Cell(i + 2, 2).Value = await _context.Artists
+                        .Where(a => a.Id == songs[i].ArtistId)
+                        .Select(a => a.Name)
+                        .FirstOrDefaultAsync();
+                    worksheet.Cell(i + 2, 3).Value = await _context.Genres
+                        .Where(a => a.Id == songs[i].GenreId)
+                        .Select(a => a.Name)
+                        .FirstOrDefaultAsync();
+                    worksheet.Cell(i + 2, 4).Value = await _context.Lyrics
+                        .Where(a => a.Id == songs[i].LyricsId)
+                        .Select(a => a.Text)
+                        .FirstOrDefaultAsync();
+                    worksheet.Cell(i + 2, 5).Value = songs[i].Duration;
                 }
 
                 using (var stream = new MemoryStream())

@@ -1,6 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @model MusicServiceInfrastructure.ViewModel.ChangeRoleViewModel
 
+<br />
 <h2>Зміна ролей для користувача @Model.UserEmail</h2>
 
 <form asp-action="Edit" method="post">
@@ -8,11 +9,12 @@
     <div class="form-group">
         @foreach (IdentityRole role in Model.AllRoles)
         {
-            <input type="checkbox" name="roles" value="@role.Name"
+            <input type="checkbox" class="form-check-input" name="roles" value="@role.Name"
             @(Model.UserRoles.Contains(role.Name) ? "checked=\"checked\"" : "") />
 
             @role.Name <br />
         }
     </div>
+    <br />
     <button type="submit" class="btn btn-primary">Зберегти</button>
 </form>

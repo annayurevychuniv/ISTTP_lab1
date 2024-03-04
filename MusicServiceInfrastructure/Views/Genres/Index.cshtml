@@ -5,7 +5,7 @@
 }
 
 <br/>
-<h1>Жанри</h1>
+<h2>Жанри</h2>
 
 <p>
     <a asp-action="Create" class="btn btn-dark" role="button">Створити новий жанр</a>
@@ -41,4 +41,29 @@
 }
     </tbody>
 </table>
+
+<div class="container">
+    <div id="chart1"></div>
+</div>
+@section scripts{
+    <script type "text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script>
+        google.charts.load('current', { 'packages': ['corechart'] });
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart() {
+
+            $.get('/api/Chart/Genres', function (Genres) {
+                data = google.visualization.arrayToDataTable(Genres, false);
+                var option = {
+                    title: "Співвідношення кількості пісень та жанрів",
+                    width: 500,
+                    height: 400
+                };
+                chart = new google.visualization.PieChart(document.getElementById('chart1'));
+                chart.draw(data, option);
+            })
+        }
+    </script>
+}
 

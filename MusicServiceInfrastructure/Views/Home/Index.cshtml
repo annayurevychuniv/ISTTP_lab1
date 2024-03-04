@@ -2,17 +2,64 @@
     ViewData["Title"] = "MusicBox";
 }
 
-<div class="container mt-5 mb-5">
-    <div class="row">
-        <div class="col-md-6 offset-md-3">
-            <figure class="text-center">
-                <blockquote class="blockquote display-4">
-                    <p class="mb-0">Музика може змінити світ, оскільки вона здатна змінити людей</p>
-                </blockquote>
-                <figcaption class="blockquote-footer">
-                    Боно
-                </figcaption>
-            </figure>
-        </div>
-    </div>
-</div>
+<head>
+    <style>
+
+        header {
+            z-index: 10;
+            position: relative;
+        }
+
+        .home__inner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .home__title {
+            color: white;
+            font-size: 70px;
+            margin-top: 180px;
+        }
+
+        .home__description {
+            color: white;
+            font-size: 25px;
+            margin-bottom: 50px;
+        }
+
+        .home__image {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 703px;
+            background-image: linear-gradient(180deg, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.6)), url(https://www.metromusicmakers.com/wp-content/uploads/2019/08/adult-beautiful-blur-374703-1024x683.jpg);
+            background-size: cover;
+            background-position: center
+        }
+
+        .home__text-block {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="home">
+        <div class="home__image"> </div>
+            <div class="home__inner">
+                <div class="home__text-block">
+                    <div class="home__title">
+                        𝄞 MusicBox
+                    </div >
+                    <div class="home__description">
+                        Доторкніться до музики
+                    </div>
+                <a asp-controller="Songs" a asp-action="Index" class="btn btn-light"> Переглянути пісні </a>
+                </div >
+            </div >
+    </div >
+</body>

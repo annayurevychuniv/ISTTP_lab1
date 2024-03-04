@@ -1,14 +1,13 @@
-﻿@model MusicServiceInfrastructure.ViewModel.SongsViewModel
+﻿@model MusicServiceDomain.Model.Song
 
 @{
-    ViewData["Title"] = "Докладніше";
+    ViewData["Title"] = "Details";
 }
 
-<br />
-<h1>Докладніше</h1>
+<h1>Details</h1>
 
 <div>
-    <h4>Пісня</h4>
+    <h4>Song</h4>
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
@@ -18,22 +17,22 @@
             @Html.DisplayFor(model => model.Title)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ArtistName)
+            @Html.DisplayNameFor(model => model.ArtistId)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ArtistName)
+            @Html.DisplayFor(model => model.ArtistId)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.GenreName)
+            @Html.DisplayNameFor(model => model.GenreId)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.GenreName)
+            @Html.DisplayFor(model => model.GenreId)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.LyricsText)
+            @Html.DisplayNameFor(model => model.LyricsId)
         </dt>
         <dd class = "col-sm-10">
-            @Html.Raw(Model.LyricsText.Replace("\n", "<br/>"))
+            @Html.DisplayFor(model => model.LyricsId)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Duration)
@@ -44,6 +43,6 @@
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-outline-primary">Редагувати</a> |
-    <a asp-action="Index" class="btn btn-outline-dark">Повернутися до списку</a>
+    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
 </div>

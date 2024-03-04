@@ -16,5 +16,8 @@ public partial class Artist : Entity
     [Display(Name = "Країна")]
     public string? Country { get; set; }
 
+    [Display(Name = "Зображення")]
+    public byte[]? Image { get; set; }
+
     public virtual ICollection<SongsArtist> SongsArtists { get; set; } = new List<SongsArtist>();
 }

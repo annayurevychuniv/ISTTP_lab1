@@ -5,7 +5,7 @@
 }
 
 <br />
-<h1>Тексти</h1>
+<h2>Тексти</h2>
 
 <p>
     <a asp-action="Create" class="btn btn-dark" role="button">Створити новий текст</a>
@@ -23,11 +23,10 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.Text)
+                @Html.Raw(item.Text.Replace("\n", "<br/>"))
             </td>
             <td>
                 <button type="button" class="btn btn-outline-dark" onclick="location.href='@Url.Action("Edit", new { id = item.Id })'">Редагувати</button>
-                    <br />
                 <button type="button" class="btn btn-secondary" onclick="location.href='@Url.Action("Delete", new { id = item.Id })'">Видалити</button>
             </td>
         </tr>

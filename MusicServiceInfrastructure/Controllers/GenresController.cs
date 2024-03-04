@@ -147,7 +147,6 @@ namespace MusicServiceInfrastructure.Controllers
                 return NotFound();
             }
 
-            // Проверяем, есть ли у жанра песни
             var songsInGenre = await _context.Songs.Where(s => s.GenreId == id).ToListAsync();
             if (songsInGenre.Any())
             {
@@ -155,7 +154,6 @@ namespace MusicServiceInfrastructure.Controllers
                 return View("Delete", genre);
             }
 
-            // Если у жанра нет песен, удаляем его
             _context.Genres.Remove(genre);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));

@@ -2,34 +2,51 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Humanizer.Localisation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using MusicServiceDomain.Model;
-using MusicServiceInfrastructure;
+using MusicServiceInfrastructure.ViewModel;
 
 namespace MusicServiceInfrastructure.Controllers
 {
-    public class LyricsController : Controller
+    public class Songs1Controller : Controller
     {
         private readonly DbsongsContext _context;
 
-        public LyricsController(DbsongsContext context)
+        public Songs1Controller(DbsongsContext context)
         {
             _context = context;
         }
 
-        // GET: Lyrics
-        public async Task<IActionResult> Index()
+        // GET: Songs1
+        public async Task<IActionResult> Index(int? id, string? name)
         {
-            var dbsongsContext = _context.Lyrics.Include(l => l.Song);
-            return View(await dbsongsContext.ToListAsync());
+            var model = _context.Songs
+                .Where(b => b.ArtistId == id)
+                .Select(song => new SongsViewModel
+                {
+                    Id = song.Id,
+                    Title = song.Title,
+                    ArtistName = _context.Artists.FirstOrDefault(artist => artist.Id == song.ArtistId).Name,
+                    GenreName = _context.Genres.FirstOrDefault(genre => genre.Id == song.GenreId).Name,
+                    LyricsText = _context.Lyrics.FirstOrDefault(lyric => lyric.Id == song.LyricsId).Text,
+                    Duration = song.Duration
+                })
+                .ToList();
 
+            if (id == null)
+            {
+                return RedirectToAction("Index", "Artists");
+            }
+
+            ViewBag.ArtistId = id;
+            ViewBag.Name = name;
+
+            return View(model);
         }
 
-        // GET: Lyrics/Details/5
+        // GET: Songs1/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -37,51 +54,39 @@ namespace MusicServiceInfrastructure.Controllers
                 return NotFound();
             }
 
-            var lyric = await _context.Lyrics
-                .Include(l => l.Song)
+            var song = await _context.Songs
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (lyric == null)
+            if (song == null)
             {
                 return NotFound();
             }
 
-            return View(lyric);
+            return View(song);
         }
 
-        // GET: Lyrics/Create
+        // GET: Songs1/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Lyrics/Create
+        // POST: Songs1/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Text,SongId,Id")] Lyric lyric)
+        public async Task<IActionResult> Create([Bind("Title,ArtistId,GenreId,LyricsId,Duration,Id")] Song song)
         {
             if (ModelState.IsValid)
             {
-                var existingNullSongIdLyrics = await _context.Lyrics.FirstOrDefaultAsync(l => l.SongId == null);
-
-                if (existingNullSongIdLyrics != null)
-                {
-                    ModelState.AddModelError("", "Не може бути двох текстів, не прив'язаних до пісень");
-                    return View("Create", lyric);
-                }
-                else
-                {
-                    _context.Add(lyric);
-                    await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
-                }
+                _context.Add(song);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
             }
-
-            return View(lyric);
+            return View(song);
         }
 
-        // GET: Lyrics/Edit/5
+        // GET: Songs1/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -89,23 +94,22 @@ namespace MusicServiceInfrastructure.Controllers
                 return NotFound();
             }
 
-            var lyric = await _context.Lyrics.FindAsync(id);
-            if (lyric == null)
+            var song = await _context.Songs.FindAsync(id);
+            if (song == null)
             {
                 return NotFound();
             }
-            ViewData["SongId"] = new SelectList(_context.Songs, "Id", "Title", lyric.SongId);
-            return View(lyric);
+            return View(song);
         }
 
-        // POST: Lyrics/Edit/5
+        // POST: Songs1/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Text,SongId,Id")] Lyric lyric)
+        public async Task<IActionResult> Edit(int id, [Bind("Title,ArtistId,GenreId,LyricsId,Duration,Id")] Song song)
         {
-            if (id != lyric.Id)
+            if (id != song.Id)
             {
                 return NotFound();
             }
@@ -114,12 +118,12 @@ namespace MusicServiceInfrastructure.Controllers
             {
                 try
                 {
-                    _context.Update(lyric);
+                    _context.Update(song);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!LyricExists(lyric.Id))
+                    if (!SongExists(song.Id))
                     {
                         return NotFound();
                     }
@@ -130,11 +134,10 @@ namespace MusicServiceInfrastructure.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["SongId"] = new SelectList(_context.Songs, "Id", "Title", lyric.SongId);
-            return View(lyric);
+            return View(song);
         }
 
-        // GET: Lyrics/Delete/5
+        // GET: Songs1/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -142,35 +145,34 @@ namespace MusicServiceInfrastructure.Controllers
                 return NotFound();
             }
 
-            var lyric = await _context.Lyrics
-                .Include(l => l.Song)
+            var song = await _context.Songs
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (lyric == null)
+            if (song == null)
             {
                 return NotFound();
             }
 
-            return View(lyric);
+            return View(song);
         }
 
-        // POST: Lyrics/Delete/5
+        // POST: Songs1/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var lyric = await _context.Lyrics.FindAsync(id);
-            if (lyric != null)
+            var song = await _context.Songs.FindAsync(id);
+            if (song != null)
             {
-                _context.Lyrics.Remove(lyric);
+                _context.Songs.Remove(song);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool LyricExists(int id)
+        private bool SongExists(int id)
         {
-            return _context.Lyrics.Any(e => e.Id == id);
+            return _context.Songs.Any(e => e.Id == id);
         }
     }
 }

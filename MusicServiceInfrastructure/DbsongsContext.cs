@@ -42,6 +42,7 @@ public partial class DbsongsContext : DbContext
             entity.Property(e => e.Country)
                 .HasMaxLength(30)
                 .IsUnicode(false);
+            entity.Property(e => e.Image).HasColumnType("image");
             entity.Property(e => e.Name)
                 .HasMaxLength(30)
                 .IsUnicode(false);
