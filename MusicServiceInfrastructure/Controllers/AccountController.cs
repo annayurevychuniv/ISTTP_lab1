@@ -34,6 +34,7 @@ namespace LibraryWebApplication.Controllers
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
+                    await _userManager.AddToRoleAsync(user, "user");
                     await _signInManager.SignInAsync(user, false);
                     return RedirectToAction("Index", "Home");
                 }
@@ -72,20 +73,27 @@ namespace LibraryWebApplication.Controllers
             {
                 return View(userModel);
             }
+
             var user = await _userManager.FindByEmailAsync(userModel.Email);
-            if (user != null &&
-                await _userManager.CheckPasswordAsync(user, userModel.Password))
+            if (user != null && await _userManager.CheckPasswordAsync(user, userModel.Password))
             {
+                var roles = await _userManager.GetRolesAsync(user);
+
                 var identity = new ClaimsIdentity(IdentityConstants.ApplicationScheme);
                 identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, user.Id));
                 identity.AddClaim(new Claim(ClaimTypes.Name, user.UserName));
-                await HttpContext.SignInAsync(IdentityConstants.ApplicationScheme,
-                    new ClaimsPrincipal(identity));
+
+                foreach (var role in roles)
+                {
+                    identity.AddClaim(new Claim(ClaimTypes.Role, role));
+                }
+
+                await HttpContext.SignInAsync(IdentityConstants.ApplicationScheme, new ClaimsPrincipal(identity));
                 return RedirectToLocal(returnUrl);
             }
             else
             {
-                ModelState.AddModelError("", "Invalid UserName or Password");
+                ModelState.AddModelError("", "Неправильний логін чи (та) пароль");
                 return View();
             }
         }
@@ -96,6 +104,12 @@ namespace LibraryWebApplication.Controllers
         {
             await _signInManager.SignOutAsync();
             return RedirectToAction("Index", "Home");
+        }
+
+        [HttpGet]
+        public IActionResult AccessDenied()
+        {
+            return View();
         }
 
     }

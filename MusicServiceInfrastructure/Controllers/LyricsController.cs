@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Humanizer.Localisation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -12,6 +13,7 @@ using MusicServiceInfrastructure;
 
 namespace MusicServiceInfrastructure.Controllers
 {
+    [Authorize(Roles = "admin, user")]
     public class LyricsController : Controller
     {
         private readonly DbsongsContext _context;
@@ -49,6 +51,7 @@ namespace MusicServiceInfrastructure.Controllers
         }
 
         // GET: Lyrics/Create
+        [Authorize(Roles = "admin")]
         public IActionResult Create()
         {
             return View();
@@ -59,6 +62,7 @@ namespace MusicServiceInfrastructure.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Create([Bind("Text,SongId,Id")] Lyric lyric)
         {
             if (ModelState.IsValid)
@@ -82,6 +86,7 @@ namespace MusicServiceInfrastructure.Controllers
         }
 
         // GET: Lyrics/Edit/5
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -103,6 +108,7 @@ namespace MusicServiceInfrastructure.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Edit(int id, [Bind("Text,SongId,Id")] Lyric lyric)
         {
             if (id != lyric.Id)
@@ -135,6 +141,7 @@ namespace MusicServiceInfrastructure.Controllers
         }
 
         // GET: Lyrics/Delete/5
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)

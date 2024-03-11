@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using MusicServiceDomain.Model;
+using System.ComponentModel.DataAnnotations;
 
 namespace MusicServiceInfrastructure.ViewModel
 {
@@ -19,5 +20,7 @@ namespace MusicServiceInfrastructure.ViewModel
 
         [Display(Name = "Тривалість")]
         public int Duration { get; set; }
+
+        public bool? IsLikedByCurrentUser { get; set; }
     }
 }

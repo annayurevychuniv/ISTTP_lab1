@@ -1,24 +1,35 @@
-﻿@model IEnumerable<MusicServiceInfrastructure.ViewModel.SongsViewModel>
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<MusicServiceDomain.Model.User> SignInManager
+@model IEnumerable<MusicServiceInfrastructure.ViewModel.SongsViewModel>
 
 @{
     ViewData["Title"] = "Пісні";
 }
 
 <script>
-    function changeColor(btnId) 
-    {
-        var btn = document.getElementById(btnId);
-        if (btn.classList.contains('btn-dark')) 
-        {
-            btn.classList.remove('btn-dark');
-            btn.classList.add('btn-secondary');
-        } 
-        else 
-        {
-            btn.classList.remove('btn-secondary');
-            btn.classList.add('btn-dark');
+    function toggleFavorite(songId, button) {
+        var isLiked = localStorage.getItem(`liked_${songId}`);
+        if (!isLiked || isLiked === 'false') {
+            localStorage.setItem(`liked_${songId}`, 'true');
+            button.textContent = "❤️";
+        } else {
+            localStorage.setItem(`liked_${songId}`, 'false');
+            button.textContent = "🤍";
         }
     }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var buttons = document.querySelectorAll('.toggle-like');
+        buttons.forEach(function (button) {
+            var songId = button.dataset.songId;
+            var isLiked = localStorage.getItem(`liked_${songId}`);
+            if (isLiked === 'true') {
+                button.textContent = "❤️";
+                button.classList.remove('btn-dark');
+                button.classList.add('btn-secondary');
+            }
+        });
+    });
 </script>
 
 <br />
@@ -43,9 +54,14 @@
     <tbody>
 @foreach (var item in Model) {
         <tr>
-            <td>
-                <button type="button" id="addToFavoritesBtn_@item.Id" class="btn btn-dark" onclick="changeColor('addToFavoritesBtn_@item.Id')">❤</button>
-            </td>
+                <td>
+                    @if (SignInManager.IsSignedIn(User) && User.IsInRole("user"))
+                    {
+                        var btnClass = item.IsLikedByCurrentUser.GetValueOrDefault() ? "btn-outline-light" : "btn-outline-light";
+                        var btnText = item.IsLikedByCurrentUser.GetValueOrDefault() ? "❤" : "🤍";
+                        <button type="button" class="btn toggle-like @btnClass" data-song-id="@item.Id" onclick="toggleFavorite('@item.Id', this)"> @btnText</button>
+                    }
+                </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Title)
             </td>
@@ -63,22 +79,25 @@
 </table>
 <hr />
 
-<br />
-<div>
-    <h3>Завантажити пісні з Excel-файлу</h3>
-    @using (Html.BeginForm("Import", "Songs", FormMethod.Post, new { enctype = "multipart/form-data", id = "frm-excel" }))
-    {
-        <div class="form-group">
-            <input class="form-control" type="file" id="fileExcel" name="fileExcel">
-        </div>
-        <br />
-        <input type="submit" class="btn btn-dark" value="Завантажити" />
-    }
-</div>
-<br />
-<hr />
-<br />
-<div>
-    <h3>Завантажити пісні в Excel-файл</h3>
-    <a asp-action="Export" class="btn btn-dark">Завантажити</a>
-</div>
+@if (SignInManager.IsSignedIn(User) && User.IsInRole("admin"))
+{
+    <br />
+    <div>
+        <h3>Завантажити пісні з Excel-файлу</h3>
+        @using (Html.BeginForm("Import", "Songs", FormMethod.Post, new { enctype = "multipart/form-data", id = "frm-excel" }))
+        {
+            <div class="form-group">
+                <input class="form-control" type="file" id="fileExcel" name="fileExcel">
+            </div>
+            <br />
+            <input type="submit" class="btn btn-dark" value="Завантажити" />
+        }
+    </div>
+    <br />
+    <hr />
+    <br />
+    <div>
+        <h3>Завантажити пісні в Excel-файл</h3>
+        <a asp-action="Export" class="btn btn-dark">Завантажити</a>
+    </div>
+}

@@ -1,4 +1,6 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<MusicServiceDomain.Model.User> SignInManager
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -8,6 +10,11 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/MusicServiceInfrastructure.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Dancing+Script&display=swap">
+    <style>
+        .btn-custom {
+            color: #fff;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -22,22 +29,34 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Songs" asp-action="Index">Пісні</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Artists" asp-action="Index">Виконавці</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Genres" asp-action="Index">Жанри</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Lyrics" asp-action="Index">Тексти</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Roles" asp-action="Index">Управління ролями</a>
-                        </li>
+                        @if (SignInManager.IsSignedIn(User) && (User.IsInRole("admin") || User.IsInRole("user")))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Artists" asp-action="Index">Виконавці</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Genres" asp-action="Index">Жанри</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Lyrics" asp-action="Index">Тексти</a>
+                            </li>
+                        }
+                        @if (SignInManager.IsSignedIn(User) && User.IsInRole("user"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Songs" asp-action="Favourites">Улюблені пісні</a>
+                            </li>
+                        }
+                        @if (SignInManager.IsSignedIn(User) && User.IsInRole("admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Roles" asp-action="Index">Управління ролями</a>
+                            </li>
+                        }
                     </ul>
                     @if (User.Identity.IsAuthenticated)
                     {
-                        <button type="button" class="btn btn-link disabled">@User.Identity.Name</button>
+                        <button type="button" class="btn btn-custom">@User.Identity.Name</button>
 
                         <form method="post" asp-controller="Account" asp-action="Logout" class="d-flex">
                             <button type="submit" class="btn btn-dark">Вихід</button>

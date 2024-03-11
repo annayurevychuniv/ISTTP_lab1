@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace MusicServiceInfrastructure.Controllers
 {
+    [Authorize(Roles = "admin, user")]
     public class GenresController : Controller
     {
         private readonly DbsongsContext _context;
@@ -46,6 +47,7 @@ namespace MusicServiceInfrastructure.Controllers
         }
 
         // GET: Genres/Create
+        [Authorize(Roles = "admin")]
         public IActionResult Create()
         {
             return View();
@@ -56,6 +58,7 @@ namespace MusicServiceInfrastructure.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Create([Bind("Name,Description,Id")] Genre genre)
         {
             if (ModelState.IsValid)
@@ -68,6 +71,7 @@ namespace MusicServiceInfrastructure.Controllers
         }
 
         // GET: Genres/Edit/5
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -88,6 +92,7 @@ namespace MusicServiceInfrastructure.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Edit(int id, [Bind("Name,Description,Id")] Genre genre)
         {
             if (id != genre.Id)
@@ -119,6 +124,7 @@ namespace MusicServiceInfrastructure.Controllers
         }
 
         // GET: Genres/Delete/5
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)

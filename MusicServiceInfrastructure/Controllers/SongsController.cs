@@ -4,7 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using ClosedXML.Excel;
 using DocumentFormat.OpenXml.Office2010.Excel;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Humanizer.Localisation;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -18,16 +21,20 @@ namespace MusicServiceInfrastructure.Controllers
     {
         private readonly ILogger<SongsController> _logger;
         private readonly DbsongsContext _context;
+        private readonly UserManager<User> _userManager;
 
-        public SongsController(ILogger<SongsController> logger, DbsongsContext context)
+        public SongsController(ILogger<SongsController> logger, DbsongsContext context, UserManager<User> userManager)
         {
             _logger = logger;
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: Songs
         public async Task<IActionResult> Index()
         {
+            var userId = _userManager.GetUserId(User);
+
             var model = _context.Songs
                 .Select(song => new SongsViewModel
                 {
@@ -36,7 +43,8 @@ namespace MusicServiceInfrastructure.Controllers
                     ArtistName = _context.Artists.FirstOrDefault(artist => artist.Id == song.ArtistId).Name,
                     GenreName = _context.Genres.FirstOrDefault(genre => genre.Id == song.GenreId).Name,
                     LyricsText = _context.Lyrics.FirstOrDefault(lyric => lyric.Id == song.LyricsId).Text,
-                    Duration = song.Duration
+                    Duration = song.Duration,
+                    IsLikedByCurrentUser = song.Likes.Any(l => l.UserId == userId)
                 })
                 .ToList();
 
@@ -68,11 +76,11 @@ namespace MusicServiceInfrastructure.Controllers
                 Duration = song.Duration
             };
 
-
             return View(songViewModel);
         }
 
         // GET: Songs/Create
+        [Authorize(Roles = "admin")]
         public IActionResult Create()
         {
             ViewData["ArtistId"] = new SelectList(_context.Artists, "Id", "Name");
@@ -87,6 +95,7 @@ namespace MusicServiceInfrastructure.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Create([Bind("Title,ArtistId,GenreId,LyricsId,Duration,Id")] Song song)
         {
             if (ModelState.IsValid)
@@ -99,6 +108,7 @@ namespace MusicServiceInfrastructure.Controllers
         }
 
         // GET: Songs/Edit/5
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -123,6 +133,7 @@ namespace MusicServiceInfrastructure.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Edit(int id, [Bind("Title,ArtistId,GenreId,LyricsId,Duration,Id")] Song song)
         {
             if (id != song.Id)
@@ -154,6 +165,7 @@ namespace MusicServiceInfrastructure.Controllers
         }
 
         // GET: Songs/Delete/5
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -177,10 +189,18 @@ namespace MusicServiceInfrastructure.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var song = await _context.Songs.FindAsync(id);
-            if (song != null)
+            if (song == null)
             {
-                _context.Songs.Remove(song);
+                return NotFound();
             }
+
+            var relatedSongsArtists = await _context.SongsArtists.Where(sa => sa.SongId == id).ToListAsync();
+            _context.SongsArtists.RemoveRange(relatedSongsArtists);
+
+            var relatedSongsGenres = await _context.SongsGenres.Where(sg => sg.SongId == id).ToListAsync();
+            _context.SongsGenres.RemoveRange(relatedSongsGenres);
+
+            _context.Songs.Remove(song);
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
@@ -192,7 +212,45 @@ namespace MusicServiceInfrastructure.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> AddToFavorites(int songId)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var song = _context.Songs.FirstOrDefault(s => s.Id == songId);
+
+            if (user != null && song != null)
+            {
+                var like = new Like
+                {
+                    UserId = user.Id,
+                    SongId = songId,
+                    LikeDateTime = DateOnly.FromDateTime(DateTime.Now)
+            };
+
+                _context.Likes.Add(like);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RemoveFromFavorites(int songId)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var like = _context.Likes.FirstOrDefault(l => l.UserId == user.Id && l.SongId == songId);
+
+            if (like != null)
+            {
+                _context.Likes.Remove(like);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Import(IFormFile fileExcel)
         {
             if (ModelState.IsValid)
@@ -313,8 +371,7 @@ namespace MusicServiceInfrastructure.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-
-
+        [Authorize(Roles = "admin")]
         public async Task<ActionResult> Export()
         {
             using (XLWorkbook workbook = new XLWorkbook())

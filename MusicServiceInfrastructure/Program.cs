@@ -19,7 +19,6 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddIdentity<User, IdentityRole>().AddEntityFrameworkStores<IdentityContext>();
 
-
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())

@@ -16,6 +16,7 @@ using MusicServiceInfrastructure;
 
 namespace MusicServiceInfrastructure.Controllers
 {
+    [Authorize(Roles = "admin, user")]
     public class ArtistsController : Controller
     {
         private readonly DbsongsContext _context;
@@ -50,6 +51,7 @@ namespace MusicServiceInfrastructure.Controllers
         }
 
         // GET: Artists/Create
+        [Authorize(Roles = "admin")]
         public IActionResult Create()
         {
             return View();
@@ -60,6 +62,7 @@ namespace MusicServiceInfrastructure.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Create([Bind("Name,BirthDate,Country,Image,Id")] Artist artist, IFormFile imageFile)
         {
             if (ModelState.IsValid)
@@ -83,6 +86,7 @@ namespace MusicServiceInfrastructure.Controllers
 
 
         // GET: Artists/Edit/5
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -104,6 +108,7 @@ namespace MusicServiceInfrastructure.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Edit(int id, [Bind("Name,BirthDate,Country,Image,Id")] Artist artist, IFormFile imageFile)
         {
             if (id != artist.Id)
@@ -144,6 +149,7 @@ namespace MusicServiceInfrastructure.Controllers
         }
 
         // GET: Artists/Delete/5
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
