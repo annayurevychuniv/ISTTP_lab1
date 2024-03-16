@@ -21,8 +21,8 @@ public partial class Song : Entity
     [Display(Name = "Текст")]
     public int LyricsId { get; set; }
 
-    [Required(ErrorMessage = "Поле не повинно бути порожнім")]
-    [Display(Name = "Тривалість")]
+    [Range(1, 6000, ErrorMessage = "Тривалість повинна бути більше 0 і менше 6000 с")]
+    [Display(Name = "Тривалість (в секундах)")]
     public int Duration { get; set; }
 
     public virtual ICollection<Like> Likes { get; set; } = new List<Like>();

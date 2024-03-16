@@ -19,9 +19,6 @@
             <th>
                 @Html.DisplayNameFor(model => model.Duration)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.LyricsText)
-            </th>
             <th></th>
         </tr>
     </thead>
@@ -34,13 +31,11 @@
             <td>
                 @Html.DisplayFor(modelItem => item.GenreName)
             </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Duration)
-                </td>
             <td>
-                @Html.DisplayFor(modelItem => item.LyricsText)
+                @Html.DisplayFor(modelItem => item.Duration)
             </td>
         </tr>
 }
     </tbody>
 </table>
+<a href="javascript:history.back()" class="btn btn-dark">Повернутися назад</a>

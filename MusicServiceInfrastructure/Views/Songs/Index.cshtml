@@ -6,6 +6,7 @@
     ViewData["Title"] = "Пісні";
 }
 
+@*
 <script>
     function toggleFavorite(songId, button) {
         var isLiked = localStorage.getItem(`liked_${songId}`);
@@ -31,6 +32,7 @@
         });
     });
 </script>
+*@
 
 <br />
 <h2>Пісні</h2>
@@ -54,6 +56,7 @@
     <tbody>
 @foreach (var item in Model) {
         <tr>
+            @*
                 <td>
                     @if (SignInManager.IsSignedIn(User) && User.IsInRole("user"))
                     {
@@ -62,6 +65,7 @@
                         <button type="button" class="btn toggle-like @btnClass" data-song-id="@item.Id" onclick="toggleFavorite('@item.Id', this)"> @btnText</button>
                     }
                 </td>
+                *@
             <td>
                 @Html.DisplayFor(modelItem => item.Title)
             </td>

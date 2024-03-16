@@ -102,6 +102,25 @@ namespace MusicServiceInfrastructure.Controllers
             {
                 _context.Add(song);
                 await _context.SaveChangesAsync();
+                var lyrics = await _context.Lyrics.FindAsync(song.LyricsId);
+
+                if (lyrics != null)
+                {
+                    lyrics.SongId = song.Id;
+                    _context.Update(lyrics);
+                }
+
+                SongsArtist sa = new SongsArtist();
+                sa.SongId = song.Id;
+                sa.ArtistId = song.ArtistId;
+                _context.Add(sa);
+
+                SongsGenre sg = new SongsGenre();
+                sg.SongId = song.Id;
+                sg.GenreId = song.GenreId;
+                _context.Add(sg);
+
+                await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
             return View(song);

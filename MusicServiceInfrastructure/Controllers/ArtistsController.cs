@@ -65,6 +65,20 @@ namespace MusicServiceInfrastructure.Controllers
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> Create([Bind("Name,BirthDate,Country,Image,Id")] Artist artist, IFormFile imageFile)
         {
+            if (imageFile == null)
+            {
+                artist.Image = null;
+                if (artist.Name != null)
+                {
+                    _context.Add(artist);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+                else
+                {
+                    return View(artist);
+                }
+            }
             if (ModelState.IsValid)
             {
                 if (imageFile != null && imageFile.Length > 0)
@@ -111,11 +125,34 @@ namespace MusicServiceInfrastructure.Controllers
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> Edit(int id, [Bind("Name,BirthDate,Country,Image,Id")] Artist artist, IFormFile imageFile)
         {
-            if (id != artist.Id)
+            var existingArtist = await _context.Artists.AsNoTracking().FirstOrDefaultAsync(a => a.Id == id);
+
+            if (existingArtist == null)
             {
                 return NotFound();
             }
 
+            if (imageFile == null)
+            {
+                try
+                {
+                    artist.Image = existingArtist.Image;
+                    _context.Update(artist);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!ArtistExists(artist.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+            }
             if (ModelState.IsValid)
             {
                 try
